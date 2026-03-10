@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario Neuropsiquiátrico - NPI</title>
+    <style>
+        :root { 
+            --azul-oscuro: #0a2558; 
+            --azul-medio: #1e56a0; 
+            --azul-claro: #d6e4f0;
+            --azul-intercalado: #f1f6fa;
+            --gris-fondo: #f9f9f9; 
+            --blanco: #ffffff;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: var(--azul-claro); 
+            color: #333; 
+            margin: 0; 
+            padding: 20px; 
+        }
+
+        .container { 
+            max-width: 900px; 
+            margin: auto; 
+            background: var(--blanco); 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); 
+        }
+        
+        h1 { 
+            color: var(--azul-oscuro); 
+            text-align: center; 
+            margin-bottom: 20px; 
+            font-size: 2em; 
+            font-weight: 800;
+            border-bottom: 3px solid var(--azul-oscuro); 
+            padding-bottom: 10px;
+        }
+        
+        .datos-clinicos { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 15px; 
+            background: var(--gris-fondo); 
+            padding: 20px; 
+            border: 1px solid var(--azul-claro); 
+            border-radius: 6px; 
+            margin-bottom: 20px; 
+        }
+
+        .field label { 
+            font-weight: bold; 
+            font-size: 0.85em; 
+            color: var(--azul-oscuro); 
+            display: block; 
+            margin-bottom: 4px; 
+        }
+
+        input, select { 
+            width: 100%; 
+            padding: 8px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+        }
+
+        .hidden { display: none; }
+
+        .instrucciones {
+            background: #fffbe6;
+            padding: 15px;
+            border-left: 5px solid #ffe58f;
+            border-radius: 4px;
+            margin-bottom: 25px;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .pregunta-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: var(--blanco);
+        }
+
+        .pregunta-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .pregunta-texto {
+            font-weight: bold;
+            color: var(--azul-oscuro);
+            flex: 1;
+        }
+
+        .selector-si-no {
+            display: flex;
+            border: 2px solid var(--azul-medio);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .selector-si-no label {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            background: white;
+            color: var(--azul-medio);
+            transition: 0.2s;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .selector-si-no input { display: none; }
+
+        .selector-si-no input:checked + span {
+            background: var(--azul-medio);
+            color: white;
+            display: block;
+            padding: 10px 20px;
+        }
+
+        .detalles-sintoma {
+            margin-top: 15px;
+            padding: 15px;
+            border-top: 1px dashed #ccc;
+            background: var(--azul-intercalado);
+            border-radius: 5px;
+        }
+
+        .detalle-item { margin-bottom: 12px; }
+        .detalle-item label {
+            display: block;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: var(--azul-medio);
+            margin-bottom: 5px;
+        }
+
+        .puntaje-item-visto {
+            text-align: right;
+            font-weight: bold;
+            color: var(--azul-oscuro);
+            font-size: 0.9em;
+            border-top: 1px solid #ddd;
+            padding-top: 5px;
+        }
+
+        .barra-puntaje {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--azul-oscuro);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .btn-imprimir {
+            width: 100%;
+            padding: 15px;
+            background: var(--azul-medio);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px 0 60px 0;
+        }
+
+        @media print {
+            @page { size: portrait; margin: 0.8cm; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; width: 100%; max-width: 100%; padding: 0; }
+            .btn-imprimir, .barra-puntaje, .instrucciones, .pregunta-card, h1 { display: none !important; }
+            .print-header { display: block !important; border-bottom: 2px solid #000; margin-bottom: 10px; }
+            .print-table { display: table !important; width: 100%; border-collapse: collapse; font-size: 0.85em; }
+            .print-table th, .print-table td { border: 1px solid #333; padding: 6px; text-align: left; }
+            .print-table th { background: #f2f2f2; }
+            .print-only { display: block !important; }
+        }
+        .print-only { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Inventario Neuropsiquiátrico - NPI</h1>
+    
+    <div class="datos-clinicos">
+        <div class="field"><label>Nombre y apellido:</label><input type="text" id="nombre"></div>
+        <div class="field"><label>Fecha:</label><input type="date" id="fecha"></div>
+        
+        <div class="field">
+            <label>Informante:</label>
+            <select id="informante" onchange="toggleOtro('informante', 'otroInf')">
+                <option value="esposo/a">esposo/a</option>
+                <option value="hijo/a">hijo/a</option>
+                <option value="cuidador/a">cuidador/a</option>
+                <option value="otro">otro</option>
+            </select>
+            <input type="text" id="otroInf" class="hidden" placeholder="Especifique informante" style="margin-top:5px">
+        </div>
+
+        <div class="field">
+            <label>Educación:</label>
+            <select id="educacion" onchange="toggleOtro('educacion', 'otraEdu')">
+                <option value="primario">primario</option>
+                <option value="secundario">secundario</option>
+                <option value="terciario">terciario</option>
+                <option value="ninguno">ninguno</option>
+                <option value="otros">otros</option>
+            </select>
+            <input type="text" id="otraEdu" class="hidden" placeholder="Especifique educación" style="margin-top:5px">
+        </div>
+    </div>
+
+    <div class="instrucciones">
+        INSTRUCCIONES: Por favor responda las siguientes preguntas basándose en LOS CAMBIOS que han ocurrido desde que el/la paciente comenzó a tener problemas de memoria.<br><br>
+        Indique <strong>SI</strong> solamente si el/los síntomas han estado presentes <strong>EN EL ULTIMO MES</strong>, de lo contrario indique <strong>NO</strong> e iremos a la pregunta siguiente.<br><br>
+        Para todas las preguntas que Ud. indica <strong>SI</strong> debe valorar en cada una, la frecuencia, la severidad del síntoma y la sobrecarga que el mismo le genera a UD según los diferentes criterios.
+    </div>
+
+    <h3 style="color: var(--azul-oscuro)">Cuestionario:</h3>
+    <div id="cuestionario"></div>
+
+    <button class="btn-imprimir" onclick="imprimirPDF()">Imprimir Resultados / PDF</button>
+
+    <div class="print-only">
+        <div class="print-header">
+            <h3 style="margin:0">Inventario Neuropsiquiátrico - NPI (Resumen)</h3>
+            <p id="print-paciente-data" style="font-size: 0.9em; margin: 8px 0;"></p>
+        </div>
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th>Pregunta / Síntoma</th>
+                    <th style="text-align:center">Resp.</th>
+                    <th style="text-align:center">Sev.</th>
+                    <th style="text-align:center">Freq.</th>
+                    <th style="text-align:center">Sobrecarga</th>
+                    <th style="text-align:center">Total (SxF)</th>
+                </tr>
+            </thead>
+            <tbody id="printTbody"></tbody>
+        </table>
+        <div style="margin-top:15px; font-weight:bold; text-align:right; border-top: 1px solid #000; padding-top: 10px;">
+            Puntaje Total NPI: <span id="printTotalNPI"></span> | Sobrecarga Total: <span id="printTotalSob"></span>
+        </div>
+    </div>
+</div>
+
+<div class="barra-puntaje">
+    Puntaje NPI: <span id="totalFlotante">0</span> | Sobrecarga: <span id="sobFlotante">0</span>
+</div>
+
+<script>
+    const preguntas = [
+        { t: "Delirios", d: "el paciente cree que otros le quieren robar o planean perjudicarlo en algún modo?" },
+        { t: "Alucinaciones", d: "el paciente actúa como si escuchara voces o habla con personas que no están presentes?" },
+        { t: "Agitación/agresión", d: "es el paciente obstinado y se resiste a aceptar la ayuda de los demás?" },
+        { t: "Depresión/disforia", d: "el paciente actúa como se estuviera triste/desanimado? Suele llorar?" },
+        { t: "Ansiedad", d: "el paciente suele estar inquieto cuando se separa de usted? Tiene otros signos de nerviosismo como respiración corta, gemidos, suspiros, imposibilidad de relajarse, o sentimiento de tensión excesiva?" },
+        { t: "Euforia/negación", d: "el paciente suele sentirse demasiado bien o actuar con alegría excesiva?" },
+        { t: "Apatía/indiferencia", d: "el paciente parece haber perdido interés en sus tareas habituales y en las actividades o planes de los demás?" },
+        { t: "Desinhibición", d: "el paciente parece actuar impulsivamente? Por ej. le habla a extraños como si los conociera, dice cosas que hieren los sentimientos de los demás?" },
+        { t: "Irritabilidad/labilidad", d: "nota que el paciente tiene poca paciencia, y dificultad en la realización de tareas o en la espera de aquellas actividades que tiene programadas?" },
+        { t: "Alteraciones motoras", d: "realiza el paciente actividades repetitivas como caminar de un lado al otro de la casa, manipular botones, enrollar cordones, u otras actividades repetitivas?" },
+        { t: "Comportamientos nocturnos", d: "suele el paciente despertarlo por la noche, o levantarse temprano por la mañana o recostarse repetidamente durante el día?" },
+        { t: "Apetito/ingesta", d: "el paciente ha perdido o ganado peso? Ha tenido cambios en sus preferencias alimentarias?" }
+    ];
+
+    const opcionesSev = [
+        "1- LEVE (notorio pero sin cambios significativos en el paciente)",
+        "2- MODERADO (el cambio es significativo pero no dramático)",
+        "3- SEVERO (muy marcado o prominente)"
+    ];
+
+    const opcionesFreq = [
+        "1- OCASIONALMENTE: menos de una VEZ por semana",
+        "2- A MENUDO: una vez por semana",
+        "3- FRECUENTEMENTE: varias veces a la semana pero no todos los días",
+        "4- MUY FRECUENTE: una 0 más veces por día"
+    ];
+
+    const opcionesSob = [
+        "0- No ha resultado estresante",
+        "1- Mínimo (ligeramente estresante, fácil de sobrellevar)",
+        "2- Leve (no muy estresante generalmente fácil de llevar)",
+        "3- Moderado (estresante de tanto en tanto, no siempre se puede sobrellevar)",
+        "4- Severo (muy estresante, es dificultoso sobrellevarlo)",
+        "5- Muy Severo (extremadamente estresante, me siento incapaz de sobrellevarlo)"
+    ];
+
+    function toggleOtro(sId, iId) {
+        const val = document.getElementById(sId).value;
+        document.getElementById(iId).className = (val === 'otro' || val === 'otros') ? '' : 'hidden';
+    }
+
+    const cuestionario = document.getElementById('cuestionario');
+    preguntas.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'pregunta-card';
+        div.innerHTML = `
+            <div class="pregunta-header">
+                <div class="pregunta-texto">${i+1}- ${p.t}: <span style="font-weight:normal; font-size:0.9em;">${p.d}</span></div>
+                <div class="selector-si-no">
+                    <label><input type="radio" name="r${i}" value="NO" checked onclick="toggleMenu(${i}, false)"><span>NO</span></label>
+                    <label><input type="radio" name="r${i}" value="SI" onclick="toggleMenu(${i}, true)"><span>SI</span></label>
+                </div>
+            </div>
+            <div id="menu-${i}" class="detalles-sintoma hidden">
+                <div class="detalle-item">
+                    <label>Respecto a la SEVERIDAD (cómo afecta el Síntoma al paciente)</label>
+                    <select id="sev-${i}" onchange="actualizar()">
+                        ${opcionesSev.map((t, idx) => `<option value="${idx+1}">${t}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="detalle-item">
+                    <label>Respecto a la FRECUENCIA:</label>
+                    <select id="freq-${i}" onchange="actualizar()">
+                        ${opcionesFreq.map((t, idx) => `<option value="${idx+1}">${t}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="detalle-item">
+                    <label>Respecto a la SOBRECARGA que Ud. experimenta:</label>
+                    <select id="sob-${i}" onchange="actualizar()">
+                        ${opcionesSob.map((t, idx) => `<option value="${idx}">${t}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="puntaje-item-visto">Puntaje Ítem: <span id="sub-${i}">0</span></div>
+            </div>
+        `;
+        cuestionario.appendChild(div);
+    });
+
+    function toggleMenu(idx, show) {
+        document.getElementById(`menu-${idx}`).className = show ? 'detalles-sintoma' : 'detalles-sintoma hidden';
+        actualizar();
+    }
+
+    function actualizar() {
+        let totalNPI = 0;
+        let totalSob = 0;
+        preguntas.forEach((_, i) => {
+            const si = document.querySelector(`input[name="r${i}"]:checked`).value === 'SI';
+            if(si) {
+                const s = parseInt(document.getElementById(`sev-${i}`).value);
+                const f = parseInt(document.getElementById(`freq-${i}`).value);
+                const sob = parseInt(document.getElementById(`sob-${i}`).value);
+                const sub = s * f;
+                totalNPI += sub;
+                totalSob += sob;
+                document.getElementById(`sub-${i}`).innerText = sub;
+            }
+        });
+        document.getElementById('totalFlotante').innerText = totalNPI;
+        document.getElementById('sobFlotante').innerText = totalSob;
+        return { totalNPI, totalSob };
+    }
+
+    function imprimirPDF() {
+        const { totalNPI, totalSob } = actualizar();
+        const tbody = document.getElementById('printTbody');
+        tbody.innerHTML = "";
+
+        const inf = document.getElementById('informante').value === 'otro' ? document.getElementById('otroInf').value : document.getElementById('informante').value;
+        const edu = document.getElementById('educacion').value === 'otros' ? document.getElementById('otraEdu').value : document.getElementById('educacion').value;
+        
+        document.getElementById('print-paciente-data').innerText = `Nombre: ${document.getElementById('nombre').value} | Fecha: ${document.getElementById('fecha').value} | Informante: ${inf} | Educación: ${edu}`;
+
+        preguntas.forEach((p, i) => {
+            const r = document.querySelector(`input[name="r${i}"]:checked`).value;
+            if(r === 'SI') {
+                const s = document.getElementById(`sev-${i}`).value;
+                const f = document.getElementById(`freq-${i}`).value;
+                const sob = document.getElementById(`sob-${i}`).value;
+                tbody.innerHTML += `<tr>
+                    <td><strong>${p.t}</strong></td>
+                    <td style="text-align:center">SI</td>
+                    <td style="text-align:center">${s}</td>
+                    <td style="text-align:center">${f}</td>
+                    <td style="text-align:center">${sob}</td>
+                    <td style="text-align:center"><strong>${s*f}</strong></td>
+                </tr>`;
+            } else {
+                tbody.innerHTML += `<tr>
+                    <td>${p.t}</td>
+                    <td style="text-align:center">NO</td>
+                    <td style="text-align:center">-</td>
+                    <td style="text-align:center">-</td>
+                    <td style="text-align:center">-</td>
+                    <td style="text-align:center">0</td>
+                </tr>`;
+            }
+        });
+
+        document.getElementById('printTotalNPI').innerText = totalNPI;
+        document.getElementById('printTotalSob').innerText = totalSob;
+        window.print();
+    }
+
+    document.getElementById('fecha').valueAsDate = new Date();
+</script>
+</body>
+</html>
